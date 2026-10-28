@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MiniAuth Lab — Perfil de usuario</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <main class="container">
+        <section class="card" aria-labelledby="titulo-perfil">
+            <header class="card-header">
+                <span class="badge badge-success">Sesión activa</span>
+                <h1 id="titulo-perfil">Bienvenido, {{ username }}</h1>
+                <p class="subtitle">Has accedido correctamente al área protegida de MiniAuth Lab.</p>
+            </header>
+
+            <div class="profile-box">
+                <p><strong>Estado de la sesión:</strong> Autenticado como <code>{{ username }}</code></p>
+                <p>
+                    Esta vista comprueba el cumplimiento funcional de los escenarios BDD en Cucumber
+                    (acceso autorizado al perfil tras presentar credenciales válidas).
+                </p>
+            </div>
+
+            <form action="{{ url_for('logout') }}" method="post" class="logout-form">
+                <button type="submit" class="btn btn-secondary" id="btn-salir">
+                    Cerrar sesión
+                </button>
+            </form>
+
+            <footer class="card-footer">
+                <p class="warning-note">
+                    Nota pedagógica: esta sesión utiliza una clave de demostración en memoria; no representa un sistema de producción.
+                </p>
+            </footer>
+        </section>
+    </main>
+</body>
+</html>

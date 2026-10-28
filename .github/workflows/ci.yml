@@ -1,0 +1,94 @@
+name: CI — Verificación MiniAuth Lab
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit-and-contract-tests:
+    name: Pruebas de contrato Flask (Python)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.6"
+
+      - name: Instalar dependencias fijadas
+        working-directory: ./app
+        run: |
+          python -m pip install --upgrade pip==24.2
+          pip install -r requirements.txt
+
+      - name: Ejecutar suite pytest de contrato y cabeceras
+        working-directory: ./app
+        run: pytest -v
+
+  docker-and-bdd-e2e:
+    name: Orquestación Compose y Cucumber BDD (PASS y FAIL controlado)
+    runs-on: ubuntu-latest
+    needs: unit-and-contract-tests
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Validar sintaxis de compose.yaml y compose.dev.yaml
+        run: |
+          docker compose -f compose.yaml config >/dev/null
+          docker compose -f compose.yaml -f compose.dev.yaml config >/dev/null
+
+      - name: Construir imágenes locales (app y cucumber)
+        run: |
+          docker compose -f compose.yaml -f compose.dev.yaml build app cucumber
+
+      - name: Levantar servicio app y esperar estado healthy
+        run: |
+          docker compose -f compose.yaml -f compose.dev.yaml up -d --wait app
+
+      - name: Verificar HTTP 200 y ausencia deliberada de cabeceras en /login
+        run: |
+          headers="$(curl -sSI http://127.0.0.1:5000/login)"
+          echo "$headers"
+          if echo "$headers" | grep -qi "Content-Security-Policy:"; then
+            echo "ERROR: Content-Security-Policy no debe estar presente"
+            exit 1
+          fi
+          if echo "$headers" | grep -qi "X-Frame-Options:"; then
+            echo "ERROR: X-Frame-Options no debe estar presente"
+            exit 1
+          fi
+
+      - name: Ejecutar suite Cucumber normal (debe terminar en PASS / exit 0)
+        run: |
+          docker compose -f compose.yaml -f compose.dev.yaml run --rm cucumber
+
+      - name: Ejecutar escenario de fallo controlado (debe fallar por aserción / exit != 0)
+        run: |
+          set +e
+          output="$(docker compose -f compose.yaml -f compose.dev.yaml run --rm -e CUCUMBER_FILTER_TAGS='@fallo-controlado' cucumber 2>&1)"
+          status=$?
+          set -e
+          echo "$output"
+          if [ "$status" -eq 0 ]; then
+            echo "ERROR: El escenario @fallo-controlado debía terminar con código distinto de cero."
+            exit 1
+          fi
+          echo "$output" | grep -q "Fallo de aserción BDD"
+
+      - name: Re-ejecutar suite Cucumber normal para verificar aislamiento de estado
+        run: |
+          docker compose -f compose.yaml -f compose.dev.yaml run --rm cucumber
+
+      - name: Apagar entorno Compose
+        if: always()
+        run: |
+          docker compose -f compose.yaml -f compose.dev.yaml down

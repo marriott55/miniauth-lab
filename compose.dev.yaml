@@ -1,0 +1,16 @@
+# Configuración de desarrollo local para construir imágenes desde los Dockerfiles
+# Uso:
+#   docker compose -f compose.yaml -f compose.dev.yaml up -d --build
+#   docker compose -f compose.yaml -f compose.dev.yaml run --rm cucumber
+services:
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    image: miniauth-app:local
+
+  cucumber:
+    build:
+      context: ./cucumber
+      dockerfile: Dockerfile
+    image: miniauth-cucumber:local

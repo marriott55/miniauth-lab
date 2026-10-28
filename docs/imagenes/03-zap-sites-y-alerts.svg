@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 480" width="920" height="480">
+  <defs>
+    <style>
+      .bg { fill: #1e293b; }
+      .win { fill: #f8fafc; stroke: #64748b; stroke-width: 2; rx: 8; }
+      .panel { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; }
+      .tab { fill: #ffffff; stroke: #94a3b8; stroke-width: 1; }
+      .title { font-family: system-ui, sans-serif; font-size: 14px; font-weight: bold; fill: #0f172a; }
+      .txt { font-family: system-ui, sans-serif; font-size: 12.5px; fill: #1e293b; }
+      .mono { font-family: monospace; font-size: 12.5px; fill: #0f172a; }
+      .callout { fill: none; stroke: #dc2626; stroke-width: 2.5; rx: 6; }
+      .badge { fill: #dc2626; }
+      .badge-txt { font-family: system-ui, sans-serif; font-size: 12px; font-weight: bold; fill: #ffffff; }
+      .flag-med { fill: #f97316; }
+    </style>
+  </defs>
+
+  <rect width="920" height="480" class="bg"/>
+  <rect x="15" y="15" width="890" height="450" class="win"/>
+
+  <!-- Panel Superior Izquierdo: Árbol Sites -->
+  <rect x="25" y="25" width="280" height="190" class="panel"/>
+  <rect x="25" y="25" width="85" height="24" class="tab"/>
+  <text x="45" y="42" class="title">Sites</text>
+  <text x="40" y="72" class="txt">▼ 📁 Sites</text>
+  <text x="58" y="96" class="mono">▼ 🌐 http://app:5000</text>
+  <text x="80" y="120" class="mono">📄 GET:login</text>
+  <rect x="52" y="80" width="235" height="52" class="callout"/>
+  <circle cx="52" cy="80" r="11" class="badge"/>
+  <text x="48" y="84" class="badge-txt">1</text>
+
+  <!-- Panel Superior Derecho: Respuesta HTTP recibida -->
+  <rect x="315" y="25" width="575" height="190" class="panel"/>
+  <rect x="315" y="25" width="110" height="24" class="tab"/>
+  <text x="330" y="42" class="title">Response</text>
+  <text x="330" y="70" class="mono">HTTP/1.1 200 OK</text>
+  <text x="330" y="90" class="mono">Server: gunicorn/22.0.0</text>
+  <text x="330" y="110" class="mono">Content-Type: text/html; charset=utf-8</text>
+  <text x="330" y="135" class="txt" fill="#b91c1c">(Observa: NO existen cabeceras Content-Security-Policy ni X-Frame-Options)</text>
+  <text x="330" y="160" class="mono">&lt;title&gt;MiniAuth Lab — Iniciar sesión&lt;/title&gt;</text>
+
+  <!-- Panel Inferior: Pestaña Alerts (2 alertas pasivas obligatorias) -->
+  <rect x="25" y="225" width="865" height="225" class="panel"/>
+  <rect x="25" y="225" width="105" height="26" class="tab"/>
+  <text x="42" y="243" class="title">🚩 Alerts (2)</text>
+
+  <!-- Lista de Alertas a la izquierda -->
+  <rect x="35" y="260" width="400" height="175" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text x="45" y="282" class="title">▼ 🚩 Alerts (2)</text>
+
+  <!-- Alerta 1: CSP -->
+  <rect x="55" y="294" width="365" height="52" fill="#fff7ed" stroke="#fdba74" rx="4"/>
+  <text x="65" y="314" class="title">🟧 Content Security Policy (CSP) Header Not Set</text>
+  <text x="82" y="334" class="mono">Alert Ref: 10038-1 | Risk: Medium | GET http://app:5000/login</text>
+  <rect x="50" y="290" width="375" height="60" class="callout"/>
+  <circle cx="50" cy="290" r="11" class="badge"/>
+  <text x="46" y="294" class="badge-txt">2</text>
+
+  <!-- Alerta 2: Anti-clickjacking -->
+  <rect x="55" y="362" width="365" height="52" fill="#fff7ed" stroke="#fdba74" rx="4"/>
+  <text x="65" y="382" class="title">🟧 Missing Anti-clickjacking Header</text>
+  <text x="82" y="402" class="mono">Alert Ref: 10020-1 | Risk: Medium | GET http://app:5000/login</text>
+  <rect x="50" y="358" width="375" height="60" class="callout"/>
+  <circle cx="50" cy="358" r="11" class="badge"/>
+  <text x="46" y="362" class="badge-txt">3</text>
+
+  <!-- Detalle de la alerta seleccionada a la derecha -->
+  <rect x="450" y="260" width="425" height="175" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="465" y="284" class="title">Detalle de la alerta seleccionada:</text>
+  <text x="465" y="308" class="mono">URL: http://app:5000/login</text>
+  <text x="465" y="328" class="txt">• Risk (Riesgo): Medium (Medio) | Confidence: High (Alta)</text>
+  <text x="465" y="350" class="txt">• CWE ID: 693 (CSP) / 1021 (Anti-clickjacking)</text>
+  <text x="465" y="372" class="txt">• Descripción: La respuesta HTTP carece de la cabecera de</text>
+  <text x="465" y="390" class="txt">  protección frente a inyección de contenido o encuadre (iframe).</text>
+  <text x="465" y="414" class="txt">• Solución: Configurar Content-Security-Policy y X-Frame-Options.</text>
+</svg>

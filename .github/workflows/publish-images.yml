@@ -1,0 +1,98 @@
+name: Publicar Imágenes en GHCR
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      version_tag:
+        description: "Etiqueta de versión a publicar (ej. v1.0.0)"
+        required: true
+        default: "v1.0.0"
+        type: string
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  validate-amd64:
+    name: Validar App y Cucumber en linux/amd64 antes de publicar
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Validar y construir servicios locales
+        run: |
+          docker compose -f compose.yaml -f compose.dev.yaml config >/dev/null
+          docker compose -f compose.yaml -f compose.dev.yaml up -d --build --wait app
+          docker compose -f compose.yaml -f compose.dev.yaml build cucumber
+          docker compose -f compose.yaml -f compose.dev.yaml run --rm cucumber
+          docker compose -f compose.yaml -f compose.dev.yaml down
+
+  publish-ghcr:
+    name: Construir y publicar imágenes multi-arquitectura en GHCR
+    runs-on: ubuntu-latest
+    needs: validate-amd64
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Determinar propietario en minúsculas y etiqueta de versión
+        id: meta
+        env:
+          INPUT_TAG: ${{ inputs.version_tag }}
+          REF_NAME: ${{ github.ref_name }}
+          REPO_OWNER: ${{ github.repository_owner }}
+        run: |
+          owner_lc="$(printf '%s' "$REPO_OWNER" | tr '[:upper:]' '[:lower:]')"
+          if [ -n "$INPUT_TAG" ]; then
+            ver="$INPUT_TAG"
+          else
+            ver="$REF_NAME"
+          fi
+          echo "owner=${owner_lc}" >> "$GITHUB_OUTPUT"
+          echo "version=${ver}" >> "$GITHUB_OUTPUT"
+
+      - name: Configurar QEMU para construcción multi-arquitectura
+        uses: docker/setup-qemu-action@v3
+
+      - name: Configurar Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Iniciar sesión en GitHub Container Registry (GHCR)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Construir y publicar miniauth-app (linux/amd64, linux/arm64)
+        uses: docker/build-push-action@v6
+        with:
+          context: ./app
+          file: ./app/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ghcr.io/${{ steps.meta.outputs.owner }}/miniauth-app:${{ steps.meta.outputs.version }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ steps.meta.outputs.version }}
+
+      - name: Construir y publicar miniauth-cucumber (linux/amd64, linux/arm64)
+        uses: docker/build-push-action@v6
+        with:
+          context: ./cucumber
+          file: ./cucumber/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ghcr.io/${{ steps.meta.outputs.owner }}/miniauth-cucumber:${{ steps.meta.outputs.version }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ steps.meta.outputs.version }}

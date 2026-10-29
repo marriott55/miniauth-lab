@@ -2,7 +2,8 @@ FROM python:3.12.6-slim-bookworm
 
 LABEL org.opencontainers.image.title="MiniAuth Lab - App" \
       org.opencontainers.image.description="Aplicación web deliberadamente vulnerable para laboratorio DAST (OWASP ZAP) y BDD (Cucumber)" \
-      org.opencontainers.image.version="1.0.0"
+      org.opencontainers.image.source="https://github.com/marriott55/miniauth-lab" \
+      org.opencontainers.image.version="1.1.0"
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \

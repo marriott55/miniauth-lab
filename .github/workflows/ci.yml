@@ -71,7 +71,7 @@ jobs:
         run: |
           docker compose -f compose.yaml -f compose.dev.yaml run --rm cucumber
 
-      - name: Ejecutar escenario de fallo controlado (debe fallar por aserción / exit != 0)
+      - name: Ejecutar escenario de fallo controlado antes de editar (debe fallar por aserción / exit != 0)
         run: |
           set +e
           output="$(docker compose -f compose.yaml -f compose.dev.yaml run --rm -e CUCUMBER_FILTER_TAGS='@fallo-controlado' cucumber 2>&1)"
@@ -83,6 +83,27 @@ jobs:
             exit 1
           fi
           echo "$output" | grep -q "Fallo de aserción BDD"
+
+      - name: Editar autenticacion_fallo.feature en el host y verificar PASS vía bind mount
+        run: |
+          sed -i 's/"Acceso denegado"/"Bienvenido, estudiante"/' cucumber/src/test/resources/features/autenticacion_fallo.feature
+          output="$(docker compose -f compose.yaml -f compose.dev.yaml run --rm -e CUCUMBER_FILTER_TAGS='@fallo-controlado' cucumber 2>&1)"
+          echo "$output"
+          echo "$output" | grep -q "1 Scenarios (1 passed)"
+
+      - name: Restaurar autenticacion_fallo.feature con git restore y verificar retorno a FAIL
+        run: |
+          git restore cucumber/src/test/resources/features/autenticacion_fallo.feature
+          set +e
+          output="$(docker compose -f compose.yaml -f compose.dev.yaml run --rm -e CUCUMBER_FILTER_TAGS='@fallo-controlado' cucumber 2>&1)"
+          status=$?
+          set -e
+          echo "$output"
+          if [ "$status" -eq 0 ]; then
+            echo "ERROR: Tras git restore, @fallo-controlado debía volver a fallar."
+            exit 1
+          fi
+          echo "$output" | grep -q "1 Scenarios (1 failed)"
 
       - name: Re-ejecutar suite Cucumber normal para verificar aislamiento de estado
         run: |

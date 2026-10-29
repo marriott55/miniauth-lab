@@ -81,12 +81,12 @@ mvn -f cucumber/pom.xml test "-Dminiauth.target.url=http://127.0.0.1:5000" "-Dcu
 
 El flujo automatizado se encuentra en [`.github/workflows/publish-images.yml`](file:///d:/Users/mapro/Documents/TallerVyVTeam6/.github/workflows/publish-images.yml).
 
-### 3.1 Pasos para publicar una nueva versión (`v1.0.0`)
+### 3.1 Pasos para publicar una nueva versión (`v1.1.0`)
 
-1. Asegúrate de que el propietario en `compose.yaml` coincida en minúsculas con tu cuenta u organización de GitHub (`ghcr.io/<owner>/miniauth-app:v1.0.0` y `ghcr.io/<owner>/miniauth-cucumber:v1.0.0`).
+1. Asegúrate de que el propietario en `compose.yaml` coincida en minúsculas con tu cuenta u organización de GitHub (`ghcr.io/<owner>/miniauth-app:v1.1.0` y `ghcr.io/<owner>/miniauth-cucumber:v1.1.0`).
 2. Crea y empuja el tag de versión tras superar todas las validaciones:
    ```bash
-   git tag -a v1.0.0 -m "Release v1.0.0 para Taller V&V"
+   git tag -a v1.1.0 -m "Release v1.1.0 para Taller V&V"
    git push origin main --tags
    ```
    O bien ejecuta manualmente el workflow **Publicar Imágenes en GHCR** desde la pestaña **Actions** en GitHub (`workflow_dispatch`).
@@ -101,6 +101,6 @@ El flujo automatizado se encuentra en [`.github/workflows/publish-images.yml`](f
 Una vez publicadas las imágenes, puedes comprobar el soporte para `linux/amd64` y `linux/arm64` (Apple Silicon) con:
 
 ```bash
-docker buildx imagetools inspect ghcr.io/marriott55/miniauth-app:v1.0.0
-docker buildx imagetools inspect ghcr.io/marriott55/miniauth-cucumber:v1.0.0
+docker buildx imagetools inspect ghcr.io/marriott55/miniauth-app:v1.1.0
+docker buildx imagetools inspect ghcr.io/marriott55/miniauth-cucumber:v1.1.0
 ```

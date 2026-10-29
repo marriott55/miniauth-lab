@@ -1,6 +1,6 @@
 services:
   app:
-    image: ghcr.io/marriott55/miniauth-app:v1.0.0
+    image: ghcr.io/marriott55/miniauth-app:v1.1.0
     container_name: miniauth-app
     ports:
       - "127.0.0.1:5000:5000"
@@ -40,12 +40,21 @@ services:
       - miniauth_net
 
   cucumber:
-    image: ghcr.io/marriott55/miniauth-cucumber:v1.0.0
+    image: ghcr.io/marriott55/miniauth-cucumber:v1.1.0
     profiles:
       - bdd
+    entrypoint:
+      - "sh"
+      - "-c"
+      - "rm -rf /workspace/target/test-classes/features && exec mvn --batch-mode -o test \"-Dcucumber.filter.tags=$${CUCUMBER_FILTER_TAGS}\""
     environment:
       MINIAUTH_TARGET_URL: "http://app:5000"
       CUCUMBER_FILTER_TAGS: "${CUCUMBER_FILTER_TAGS:-not @fallo-controlado}"
+    volumes:
+      - type: bind
+        source: ./cucumber/src/test/resources/features/autenticacion_fallo.feature
+        target: /workspace/src/test/resources/features/autenticacion_fallo.feature
+        read_only: true
     depends_on:
       app:
         condition: service_healthy

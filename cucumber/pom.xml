@@ -6,7 +6,7 @@
 
     <groupId>io.miniauth</groupId>
     <artifactId>miniauth-cucumber</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <packaging>jar</packaging>
     <name>MiniAuth Lab — Cucumber BDD Suite</name>
     <description>Pruebas de aceptación BDD en Gherkin español para MiniAuth Lab</description>
@@ -70,6 +70,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>${maven-resources-plugin.version}</version>
+                <configuration>
+                    <overwrite>true</overwrite>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

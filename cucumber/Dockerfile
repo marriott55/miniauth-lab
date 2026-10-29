@@ -2,7 +2,8 @@ FROM maven:3.9.9-eclipse-temurin-21
 
 LABEL org.opencontainers.image.title="MiniAuth Lab - Cucumber BDD" \
       org.opencontainers.image.description="Suite de pruebas de aceptación BDD con Cucumber-JVM y Gherkin en español para MiniAuth Lab" \
-      org.opencontainers.image.version="1.0.0"
+      org.opencontainers.image.source="https://github.com/marriott55/miniauth-lab" \
+      org.opencontainers.image.version="1.1.0"
 
 WORKDIR /workspace
 
@@ -31,5 +32,7 @@ RUN mvn --batch-mode dependency:go-offline test \
 ENV MINIAUTH_TARGET_URL="http://app:5000" \
     CUCUMBER_FILTER_TAGS="not @fallo-controlado"
 
-# Ejecuta en modo offline (-o) usando las dependencias y plugins precargados en la imagen
-ENTRYPOINT ["sh", "-c", "exec mvn --batch-mode -o test \"-Dcucumber.filter.tags=${CUCUMBER_FILTER_TAGS}\""]
+# Limpia los recursos .feature compilados previamente en target/test-classes/features
+# para garantizar que Maven copie siempre la versión actual montada desde el host,
+# y ejecuta en modo offline (-o) usando las dependencias precargadas en la imagen.
+ENTRYPOINT ["sh", "-c", "rm -rf /workspace/target/test-classes/features && exec mvn --batch-mode -o test \"-Dcucumber.filter.tags=${CUCUMBER_FILTER_TAGS}\""]

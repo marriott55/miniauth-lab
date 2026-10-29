@@ -35,9 +35,9 @@ flowchart LR
 
 | Servicio | Imagen Base / Etiqueta | Puertos en Host | Red Interna (`miniauth_net`) | Propósito |
 |---|---|---|---|---|
-| `app` | `ghcr.io/marriott55/miniauth-app:v1.0.0` (`python:3.12.6-slim-bookworm`) | `127.0.0.1:5000:5000` | `http://app:5000` | Aplicación web Flask/Gunicorn con inicio de sesión en memoria y omisión deliberada de cabeceras de seguridad. |
+| `app` | `ghcr.io/marriott55/miniauth-app:v1.1.0` (`python:3.12.6-slim-bookworm`) | `127.0.0.1:5000:5000` | `http://app:5000` | Aplicación web Flask/Gunicorn con inicio de sesión en memoria y omisión deliberada de cabeceras de seguridad. |
 | `zap` | `ghcr.io/zaproxy/zaproxy:2.16.0` | `127.0.0.1:8080:8080` | `http://zap:8080` | Instancia oficial de OWASP ZAP ejecutando `zap-webswing.sh` como usuario `zap`. |
-| `cucumber` | `ghcr.io/marriott55/miniauth-cucumber:v1.0.0` (`maven:3.9.9-eclipse-temurin-21`) | Ninguno | Resuelve `http://app:5000` | Ejecutor bajo perfil (`profiles: ["bdd"]`) con dependencias Maven precargadas para pruebas offline (`mvn -o test`). |
+| `cucumber` | `ghcr.io/marriott55/miniauth-cucumber:v1.1.0` (`maven:3.9.9-eclipse-temurin-21`) | Ninguno | Resuelve `http://app:5000` | Ejecutor bajo perfil (`profiles: ["bdd"]`) con dependencias Maven precargadas para pruebas offline (`mvn -o test`). |
 
 ---
 
@@ -56,5 +56,7 @@ flowchart LR
    - Se descarta el escaneo activo (Active Scan) para mantener el ejercicio bajo 6 minutos y evitar ruido o bloqueos.
 4. **Aislamiento de estado en Cucumber:**
    - [`HttpTestClient.java`](file:///d:/Users/mapro/Documents/TallerVyVTeam6/cucumber/src/test/java/io/miniauth/bdd/HttpTestClient.java) instancia un `CookieManager` nuevo antes de cada escenario (`@Before`), evitando contaminación de sesiones entre escenarios consecutivos.
-5. **Fallo controlado sin editar código:**
-   - En lugar de pedir al alumno modificar archivos `.feature` y ensuciar el árbol de Git, se incluye [`autenticacion_fallo.feature`](file:///d:/Users/mapro/Documents/TallerVyVTeam6/cucumber/src/test/resources/features/autenticacion_fallo.feature) etiquetado con `@fallo-controlado`, excluido por defecto (`not @fallo-controlado`) e invocable mediante `-e CUCUMBER_FILTER_TAGS="@fallo-controlado"`.
+5. **Fallo controlado y edición en vivo del `.feature` mediante bind mount de solo lectura:**
+   - Se incluye [`autenticacion_fallo.feature`](file:///d:/Users/mapro/Documents/TallerVyVTeam6/cucumber/src/test/resources/features/autenticacion_fallo.feature) etiquetado con `@fallo-controlado`, excluido por defecto (`not @fallo-controlado`) e invocable mediante `-e CUCUMBER_FILTER_TAGS=@fallo-controlado`.
+   - En [`compose.yaml`](file:///d:/Users/mapro/Documents/TallerVyVTeam6/compose.yaml), el servicio `cucumber` monta `./cucumber/src/test/resources/features/autenticacion_fallo.feature` en `/workspace/src/test/resources/features/autenticacion_fallo.feature` con `type: bind` y `read_only: true`.
+   - Para evitar que Maven utilice una copia antigua de `target/test-classes/features/autenticacion_fallo.feature` almacenada al construir la imagen, el `entrypoint` limpia `/workspace/target/test-classes/features` antes de invocar `mvn --batch-mode -o test` (y `maven-resources-plugin` tiene `<overwrite>true</overwrite>`). Así, cada edición o `git restore` realizado por el estudiante en su máquina anfitriona surte efecto inmediato en la siguiente ejecución sin reconstruir la imagen Docker.

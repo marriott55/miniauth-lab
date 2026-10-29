@@ -1,63 +1,76 @@
-# MiniAuth Lab — Laboratorio Práctico de OWASP ZAP (DAST) y Cucumber (BDD)
+# MiniAuth Lab — Taller práctico de OWASP ZAP (DAST) y Cucumber (BDD)
 
-**Verificación y Validación de Software — Equipo 6**  
-**Duración estimada en clase:** 15 a 20 minutos (con imágenes descargadas previamente).  
-**Entregables:** **Ninguno.** Este laboratorio es 100 % práctico y formativo; no debes entregar capturas, reportes ni documentos.
+**Verificación y Validación de Software · Equipo 6**  
+**Duración del ejercicio en clase:** 15 a 20 minutos (con la preparación previa completada).  
+**Entregables:** **ninguno**. No necesitas guardar capturas ni redactar reportes.
 
 ---
 
 ## Índice
 
-1. [¿Qué vas a aprender?](#1-qué-vas-a-aprender)
-2. [Advertencia de seguridad](#2-advertencia-de-seguridad)
-3. [Antes del taller (Preparación previa)](#3-antes-del-taller-preparación-previa)
-4. [Presupuesto de tiempo del laboratorio (20 minutos)](#4-presupuesto-de-tiempo-del-laboratorio-20-minutos)
-5. [Paso 1: Clonar el repositorio (1 min)](#5-paso-1-clonar-el-repositorio-1-min)
-6. [Paso 2: Iniciar los contenedores del laboratorio (2 min)](#6-paso-2-iniciar-los-contenedores-del-laboratorio-2-min)
-7. [Paso 3: Explorar MiniAuth Lab en tu navegador (2 min)](#7-paso-3-explorar-miniauth-lab-en-tu-navegador-2-min)
-8. [Paso 4: Análisis pasivo de seguridad con OWASP ZAP (6 min)](#8-paso-4-análisis-pasivo-de-seguridad-con-owasp-zap-6-min)
-9. [Paso 5: Pruebas de comportamiento (BDD) con Cucumber (7 min)](#9-paso-5-pruebas-de-comportamiento-bdd-con-cucumber-7-min)
-10. [Paso 6: Cierre y comparación DAST vs BDD (2 min)](#10-paso-6-cierre-y-comparación-dast-vs-bdd-2-min)
-11. [Apagado del laboratorio](#11-apagado-del-laboratorio)
-12. [Solución de problemas frecuentes (Troubleshooting)](#12-solución-de-problemas-frecuentes-troubleshooting)
+1. [Qué aprenderás](#1-qué-aprenderás)
+2. [Seguridad y requisitos](#2-seguridad-y-requisitos)
+3. [Preparación obligatoria ANTES del taller (Pasos 1 y 2)](#3-preparación-obligatoria-antes-del-taller-pasos-1-y-2)
+4. [Cronograma de clase (15–20 minutos)](#4-cronograma-de-clase-1520-minutos)
+5. [Iniciar el laboratorio en clase](#5-iniciar-el-laboratorio-en-clase)
+6. [Paso 3: Conocer MiniAuth](#6-paso-3-conocer-miniauth)
+7. [Paso 4: OWASP ZAP — encontrar dos alertas pasivas](#7-paso-4-owasp-zap--encontrar-dos-alertas-pasivas)
+8. [Paso 5: Cucumber — un requisito que falla y luego pasa](#8-paso-5-cucumber--un-requisito-que-falla-y-luego-pasa)
+9. [Paso 6: Conclusión y apagado](#9-paso-6-conclusión-y-apagado)
+10. [Solución de problemas](#10-solución-de-problemas)
 
 ---
 
-## 1. ¿Qué vas a aprender?
+## 1. Qué aprenderás
 
-Con **OWASP ZAP (DAST)** descubrirás qué configuraciones de seguridad están ausentes en las respuestas HTTP reales de una aplicación web en funcionamiento sin necesidad de leer su código fuente. Con **Cucumber (BDD)** comprobarás de manera automatizada si esa misma aplicación cumple el comportamiento funcional esperado escrito en lenguaje natural (**Gherkin en español**).
+En este taller usarás **la misma aplicación web** de dos maneras complementarias:
+
+- **OWASP ZAP (DAST):** observar respuestas HTTP reales de una aplicación en ejecución para identificar configuraciones de seguridad ausentes sin necesidad de revisar su código fuente.
+- **Cucumber (BDD):** ejecutar escenarios escritos en **Gherkin en español** y comprobar si el comportamiento del sistema coincide con el resultado esperado.
+
+No necesitas instalar Python, Java, Maven, OWASP ZAP ni Cucumber en tu computadora: todas las herramientas se ejecutan dentro de contenedores Docker.
 
 ---
 
-## 2. Advertencia de seguridad
+## 2. Seguridad y requisitos
 
 > [!WARNING]
-> **MiniAuth Lab es una aplicación deliberadamente insegura creada con fines exclusivamente académicos.**
-> - Todos los puertos están enlazados únicamente a tu interfaz local (`127.0.0.1`).
-> - **Nunca** despliegues esta aplicación en un servidor público, nube o red abierta.
-> - **Nunca** utilices OWASP ZAP contra sitios o dominios externos sin autorización expresa: en esta práctica solo analizarás el servicio interno `http://app:5000`.
+> **MiniAuth contiene configuraciones de seguridad deliberadamente débiles y es exclusivamente para aprendizaje.** No lo publiques en internet ni lo despliegues en entornos de producción. Analiza únicamente el objetivo local autorizado (`http://app:5000`) desde el contenedor ZAP del laboratorio; nunca escanees sistemas de terceros sin autorización. Todos los puertos expuestos por este proyecto están restringidos a `127.0.0.1`.
+
+**Antes de empezar, tu equipo debe contar con:**
+
+- **Git** y **Docker Desktop / Docker Engine** con **Docker Compose** ya instalados y verificados antes de la sesión.
+- Docker Desktop **abierto y con el motor en ejecución** en Windows/macOS, o el servicio `docker` activo en Linux.
+- Al menos **4 GB de memoria RAM libre** y aproximadamente **5 GB de espacio en disco**.
+- Conexión a internet **durante la preparación previa** para clonar el repositorio y descargar las imágenes (no se requiere internet durante el ejercicio en clase una vez descargadas).
+
+**Enlaces oficiales de instalación (solo como referencia previa si aún no los tienes instalados):**
+
+| Sistema operativo | Git | Docker |
+|---|---|---|
+| Windows 10/11 | https://git-scm.com/downloads | https://docs.docker.com/desktop/setup/install/windows-install/ (requiere WSL 2 y virtualización habilitados) |
+| macOS (Intel o Apple Silicon) | https://git-scm.com/downloads | https://docs.docker.com/desktop/setup/install/mac-install/ |
+| Linux | https://git-scm.com/downloads | https://docs.docker.com/engine/install/ y https://docs.docker.com/compose/install/linux/ |
+
+> En Windows, asegúrate de haber habilitado **WSL 2** y **Virtual Machine Platform** antes del día del taller.
 
 ---
 
-## 3. Antes del taller (Preparación previa)
+## 3. Preparación obligatoria ANTES del taller (Pasos 1 y 2)
 
-No necesitas instalar Python, Java, Maven ni OWASP ZAP en tu computadora: todo corre dentro de contenedores Docker.
+**Completa esta sección antes de la sesión de clase.** La duración de 15 a 20 minutos del taller parte de tener Git, Docker y las imágenes de los contenedores ya descargadas en tu equipo.
 
-### 3.1 Requisitos mínimos de tu equipo
+### 3.1 Abrir una terminal
 
-- **Memoria RAM libre sugerida:** al menos **4 GB** disponibles para Docker (OWASP ZAP con Webswing utiliza entre 1.5 GB y 2 GB de RAM).
-- **Espacio en disco libre:** al menos **5 GB** para almacenar las imágenes de los contenedores.
-- **Software requerido:** **Git** y **Docker con Docker Compose**.
+- **Windows:** presiona la tecla `Windows`, escribe `PowerShell` y abre **Windows PowerShell**.
+- **macOS:** presiona `Cmd + Espacio`, escribe `Terminal` y pulsa `Enter`.
+- **Linux:** abre la aplicación **Terminal** (en la mayoría de entornos `Ctrl + Alt + T`).
 
-Si aún no los tienes instalados antes de la sesión, utiliza únicamente la documentación oficial para tu sistema operativo:
-- **Git:** https://git-scm.com/downloads
-- **Windows 10/11 (Docker Desktop con backend WSL 2 activado):** https://docs.docker.com/desktop/setup/install/windows-install/
-- **macOS Intel o Apple Silicon (Docker Desktop):** https://docs.docker.com/desktop/setup/install/mac-install/
-- **Linux (Docker Engine + Docker Compose plugin):** https://docs.docker.com/engine/install/ y https://docs.docker.com/compose/install/linux/
+Pega y ejecuta en esa terminal todos los comandos indicados a continuación, salvo cuando se indique explícitamente usar el navegador o un editor de texto.
 
-### 3.2 Verificar que Git y Docker están encendidos
+### 3.2 Comprobar que Git y Docker funcionan
 
-Abre tu terminal y ejecuta estos tres comandos uno por uno:
+Ejecuta estos tres comandos uno por uno:
 
 ```bash
 git --version
@@ -65,399 +78,359 @@ docker compose version
 docker info
 ```
 
-**Qué debes observar:**
-- `git --version` muestra una versión (por ejemplo `git version 2.x.x`).
-- `docker compose version` muestra `Docker Compose version v2.x.x`.
-- `docker info` imprime información de `Server: Docker Engine` sin mensajes de error. Si muestra un error de conexión al daemon, **abre primero la aplicación Docker Desktop** y espera unos 30 segundos a que su estado indique *Engine running*.
+**Resultado esperado:** los dos primeros comandos imprimen su número de versión; `docker info` muestra los datos de **Server: Docker Engine** sin errores de conexión. Si aparece el mensaje *Cannot connect to the Docker daemon*, abre primero **Docker Desktop** y espera unos segundos a que el motor termine de iniciar.
 
-### 3.3 Descarga anticipada de imágenes (recomendado antes de iniciar la clase)
+### 3.3 Paso 1: Clonar el repositorio
 
-La imagen oficial de OWASP ZAP pesa alrededor de 1.5 GB. Para garantizar que el laboratorio dure menos de 20 minutos en clase, descarga las imágenes de antemano tras clonar el repositorio (Paso 1) ejecutando:
-
-```bash
-docker compose pull
-```
-
----
-
-## 4. Presupuesto de tiempo del laboratorio (20 minutos)
-
-| Etapa | Actividad | Tiempo máximo objetivo |
-|---|---|---:|
-| **Pasos 1 y 2** | Clonar (si no está clonado) y levantar contenedores con imágenes ya descargadas | 3 min |
-| **Paso 3** | Visitar MiniAuth Lab e iniciar/cerrar sesión | 2 min |
-| **Paso 4** | OWASP ZAP: explorar `http://app:5000/login` y analizar dos alertas pasivas | 6 min |
-| **Paso 5** | Cucumber BDD: ejecutar suite `PASS` → fallo controlado `FAIL` → suite `PASS` | 7 min |
-| **Paso 6** | Cierre comparativo y apagado del entorno | 2 min |
-| **TOTAL** | **Experiencia completa en clase** | **20 min** |
-
----
-
-## 5. Paso 1: Clonar el repositorio (1 min)
-
-1. Abre la terminal de tu sistema operativo:
-   - **Windows:** presiona la tecla `Windows`, escribe `PowerShell` y haz clic en **Windows PowerShell**.
-   - **macOS:** presiona `Cmd + Espacio`, escribe `Terminal` y presiona `Enter`.
-   - **Linux:** abre tu aplicación **Terminal** (`Ctrl + Alt + T`).
-2. Ejecuta los siguientes comandos para descargar el proyecto y entrar en su carpeta:
+Ubícate en la carpeta donde desees guardar el proyecto y ejecuta:
 
 ```bash
 git clone https://github.com/marriott55/miniauth-lab.git
 cd miniauth-lab
 ```
 
-3. Comprueba que estás dentro del directorio correcto listando sus archivos:
+Comprueba que te encuentras dentro de la carpeta del proyecto listando su contenido:
+
+**En Windows (PowerShell):**
+
+```powershell
+Get-ChildItem
+```
+
+**En macOS y Linux:**
 
 ```bash
 ls
 ```
 
-**Qué debes observar:** en la salida deben aparecer los archivos `README.md`, `compose.yaml`, `compose.dev.yaml` y las carpetas `app`, `cucumber` y `docs`.
+**Resultado esperado:** debes ver en la lista los archivos `README.md`, `compose.yaml`, `compose.dev.yaml` y las carpetas `app`, `cucumber` y `docs`.
 
----
+### 3.4 Paso 2: Descargar las imágenes de Docker antes de clase
 
-## 6. Paso 2: Iniciar los contenedores del laboratorio (2 min)
-
-1. Si no descargaste las imágenes antes de la clase, descárgalas ahora:
+Dentro de la carpeta del proyecto, descarga las imágenes preconstruidas ejecutando:
 
 ```bash
 docker compose pull
 ```
 
-> **Nota alternativa (si no hay acceso a GHCR o prefieres compilar localmente):** puedes construir e iniciar las imágenes directamente desde el código fuente incluido ejecutando `docker compose -f compose.yaml -f compose.dev.yaml up -d --build`.
+**Resultado esperado:** Docker descarga las imágenes de `app`, `zap` y `cucumber` sin errores. Con esto concluye la preparación previa; no es necesario dejar los contenedores encendidos hasta el momento de la clase.
 
-2. Levanta en segundo plano la aplicación web (`app`) y OWASP ZAP (`zap`):
+---
+
+## 4. Cronograma de clase (15–20 minutos)
+
+| Etapa | Actividad en clase | Tiempo objetivo |
+|---|---|---:|
+| **Inicio** | Levantar y verificar contenedores (`docker compose up -d`) | 2 min |
+| **Paso 3** | Explorar MiniAuth Lab: probar inicio y cierre de sesión | 2 min |
+| **Paso 4** | OWASP ZAP: enviar petición HTTP y analizar dos alertas pasivas | 6 min |
+| **Paso 5** | Cucumber: ejecutar escenarios `PASS`, fallo controlado `FAIL`, editar Gherkin y verificar `PASS` | 8 min |
+| **Paso 6** | Conclusión comparativa y apagado (`docker compose down`) | 2 min |
+| **Total** | **Práctica completa con el entorno preparado** | **20 min** |
+
+---
+
+## 5. Iniciar el laboratorio en clase
+
+1. Abre tu terminal y asegúrate de encontrarte dentro de la carpeta del repositorio (`miniauth-lab`).
+2. Levanta los servicios en segundo plano y verifica su estado:
 
 ```bash
 docker compose up -d
-```
-
-3. Comprueba el estado de los contenedores:
-
-```bash
 docker compose ps
 ```
 
-**Qué debes observar:**
-- Dos contenedores en ejecución (`Up`):
-  - `miniauth-app` con estado `Up ... (healthy)` y puerto `127.0.0.1:5000->5000/tcp`.
-  - `miniauth-zap` con estado `Up ...` y puerto `127.0.0.1:8080->8080/tcp`.
-- El servicio `cucumber` **no** aparece en `docker compose ps` porque solo se ejecuta bajo demanda en el Paso 5.
+**Resultado esperado:**
+
+- `miniauth-app` aparece con estado **Up (healthy)** y el puerto `127.0.0.1:5000->5000/tcp`.
+- `miniauth-zap` aparece con estado **Up** y el puerto `127.0.0.1:8080->8080/tcp`.
+- El servicio `cucumber` **no** aparece en ejecución continua porque solo se invoca puntualmente en el Paso 5.
+
+Espera a que `miniauth-app` muestre `(healthy)` antes de continuar al siguiente paso.
 
 ---
 
-## 7. Paso 3: Explorar MiniAuth Lab en tu navegador (2 min)
+## 6. Paso 3: Conocer MiniAuth
 
-![Vista de inicio de sesión y perfil en MiniAuth Lab](docs/imagenes/01-miniauth-login.svg)
+1. Abre tu navegador web (Chrome, Edge, Firefox o Safari).
+2. Escribe en la barra de direcciones exactamente `http://localhost:5000/login` y presiona `Enter`.
+3. **Resultado esperado:** se muestra la tarjeta **MiniAuth Lab** con los campos **Usuario** y **Contraseña**, el botón azul **Iniciar sesión** y el recuadro inferior con las credenciales ficticias de laboratorio.
 
-1. Abre el navegador de tu computadora (Chrome, Firefox, Edge o Safari) y entra en:
-   ```text
-   http://localhost:5000/login
-   ```
-2. **Qué debes observar:** una tarjeta centrada con el título **MiniAuth Lab**, campos **Usuario** y **Contraseña**, y el botón azul **Iniciar sesión**.
-3. Introduce las credenciales ficticias de demostración (creadas exclusivamente para este laboratorio):
-   - **Usuario:** `estudiante`
-   - **Contraseña:** `Taller123!`
-4. Haz clic en **Iniciar sesión**.
-5. **Qué debes observar:** la URL cambia a `http://localhost:5000/perfil` y aparece el encabezado **`Bienvenido, estudiante`** con la etiqueta verde **`Sesión activa`**.
-6. Haz clic en el botón **Cerrar sesión**.
-7. **Qué debes observar:** vuelves al formulario en `http://localhost:5000/login`. Si intentas escribir manualmente `http://localhost:5000/perfil` en la barra de direcciones sin haber iniciado sesión, el sistema te redirigirá de nuevo a `/login`.
+![Formulario de autenticación de MiniAuth Lab](docs/capturas/01-login.png)
+*Figura 1: Vista de `http://localhost:5000/login` en el navegador. Observa el título MiniAuth Lab, los campos Usuario y Contraseña, el botón Iniciar sesión y las credenciales ficticias de demostración.*
+
+4. En el campo **Usuario**, escribe `estudiante`.
+5. En el campo **Contraseña**, escribe `Taller123!`.
+6. Haz clic en **Iniciar sesión**.
+7. **Resultado esperado:** el navegador redirige a `http://localhost:5000/perfil`, muestra la etiqueta verde **Sesión activa** y el encabezado **`Bienvenido, estudiante`**.
+
+![Resultado del inicio de sesión correcto en MiniAuth Lab](docs/capturas/02-perfil.png)
+*Figura 2: Vista de `http://localhost:5000/perfil` tras autenticarse. Observa la etiqueta Sesión activa, el mensaje Bienvenido, estudiante y el botón Cerrar sesión.*
+
+8. Haz clic en el botón **Cerrar sesión**.
+9. **Resultado esperado:** la sesión se invalida y regresas al formulario en `http://localhost:5000/login`.
 
 ---
 
-## 8. Paso 4: Análisis pasivo de seguridad con OWASP ZAP (6 min)
-
-En este paso usarás **OWASP ZAP 2.16.0** directamente desde tu navegador gracias a **Webswing**, sin instalar nada ni configurar certificados ni proxies en tu sistema.
+## 7. Paso 4: OWASP ZAP — encontrar dos alertas pasivas
 
 > [!IMPORTANT]
-> **Concepto clave de redes en Docker (`localhost` vs `app`):**
-> - Cuando usas el navegador de tu computadora, entras a `http://localhost:5000`.
-> - Sin embargo, **OWASP ZAP vive dentro de su propio contenedor Docker** en la red interna `miniauth_net`. Dentro de esa red, la aplicación web se llama **`app`**.
-> - Por lo tanto, **dentro de la ventana de OWASP ZAP siempre debes escribir `http://app:5000/login`** (nunca `localhost:5000`).
+> **Diferencia clave entre `localhost` y `app`:**  
+> En el navegador de tu computadora accedes a la aplicación mediante `http://localhost:5000`. Sin embargo, **OWASP ZAP se ejecuta dentro de su propio contenedor Docker** en la red interna `miniauth_net`. Dentro de esa red, `localhost` apunta al propio contenedor de ZAP; para comunicarse con la aplicación web desde ZAP debes usar siempre el nombre del servicio: **`http://app:5000/login`**.
 
-### 8.1 Abrir la interfaz de OWASP ZAP en Webswing
+### 7.1 Abrir la interfaz principal de OWASP ZAP y el Manual Request Editor
 
-1. En una nueva pestaña del navegador de tu computadora, abre exactamente esta dirección (incluyendo `/zap` al final):
+1. Abre una **nueva pestaña** en tu navegador y entra en:
    ```text
    http://localhost:8080/zap
    ```
-2. **Condición de espera:** la primera vez que se abre, Webswing inicia la interfaz gráfica de ZAP; esto tarda entre **15 y 40 segundos**. Verás una barra de carga y luego aparecerá la ventana de escritorio de OWASP ZAP dentro de tu navegador.
-3. En el cuadro de diálogo inicial titulado **"Do you want to persist the ZAP session?"** (*¿Quiere persistir la sesión de ZAP?*):
-   - Selecciona la tercera opción: **`No, I do not want to persist this session at this moment in time`** (*No, no quiero persistir esta sesión en este momento*).
-   - Haz clic en el botón **`Start`** (*Iniciar*).
-   - *(Si aparece una ventana informativa de "Manage Add-ons" o actualizaciones, ciérrala haciendo clic en la `X` o en `Close`).*
+2. Espera entre **15 y 40 segundos** mientras Webswing carga la interfaz de escritorio de **OWASP ZAP 2.16.0**.
+3. Si al iniciar aparece la ventana **Do you want to persist the ZAP session?**, selecciona la opción **No, I do not want to persist this session at this moment in time** y haz clic en **Start** (si aparece una ventana informativa de complementos, ciérrala).
 
-### 8.2 Generar tráfico hacia `http://app:5000/login` desde ZAP
+![Interfaz principal de OWASP ZAP 2.16.0 en Webswing](docs/capturas/03-zap-inicio.png)
+*Figura 3: Interfaz principal de OWASP ZAP 2.16.0 en `http://localhost:8080/zap/`. Observa la barra de menú superior (File, Edit, View, Analyse, Report, Tools...), el panel izquierdo Sites, el área central Welcome to ZAP (Quick Start) y las pestañas inferiores (History, Search, Alerts, Output).*
 
-![Guía de clics en OWASP ZAP Quick Start y Manual Request Editor](docs/imagenes/02-zap-quickstart-manual-explore.svg)
+4. Localiza la **barra de menú superior** de la ventana de ZAP y haz clic en **`Tools`**.
+5. En el menú desplegable, selecciona **`Manual Request Editor...`**.
+6. Espera a que se abra la ventana titulada **`Manual Request Editor`**.
+7. Verifica que está visible la pestaña o sección **`Request`**.
 
-Para que el analizador pasivo de ZAP observe la respuesta HTTP de nuestra aplicación sin depender de un navegador externo, enviaremos una petición directa desde ZAP:
+Observa cómo está organizada la ventana `Manual Request Editor`: en la sección `Request` hay un **editor de texto superior** (donde se escriben la línea de solicitud y las cabeceras HTTP) y un **panel inferior** (cuerpo de la petición) que **no es necesario modificar**.
 
-1. En la barra de menú superior de la ventana de OWASP ZAP, haz clic en **`Tools`** (*Herramientas*) → **`Manual Request Editor...`** (*Editor de peticiones manuales...*).
-   - *(Alternativa equivalente desde la pestaña central **Quick Start**: haz clic en **Manual Explore**, escribe `http://app:5000/login` en **URL to explore** y pulsa **Launch Browser**).*
-2. En la ventana **Manual Request Editor** que se abre:
-   - Asegúrate de que la línea superior de la petición indique `GET` y cambia la URL del campo o de la primera línea a:
-     ```text
-     http://app:5000/login
-     ```
-   - Haz clic en el botón **`Send`** (*Enviar*) en la esquina superior derecha de esa ventana.
-3. **Qué debes observar en la pestaña `Response` de esa ventana:** el servidor responde `HTTP/1.1 200 OK` y debajo aparece el código HTML con `<title>MiniAuth Lab — Iniciar sesión</title>`.
-4. Cierra la ventana **Manual Request Editor** haciendo clic en su `X` superior derecha.
+### 7.2 Modificar la petición HTTP
 
-### 8.3 Inspeccionar el árbol `Sites` y las dos alertas pasivas en `Alerts`
+Al abrirse por primera vez, el editor de texto superior puede mostrar una solicitud de ejemplo similar a:
 
-![Árbol Sites y panel Alerts con las dos alertas pasivas en OWASP ZAP](docs/imagenes/03-zap-sites-y-alerts.svg)
+```http
+GET http://www.any_domain_name.org/path HTTP/1.1
+host: www.any_domain_name.org
+```
 
-1. Mira el panel superior izquierdo en la pestaña **`Sites`** (*Sitios*):
-   - Despliega la carpeta `Sites` → verás el nodo **`http://app:5000`** y dentro de él **`GET:login`**.
-2. Espera de **2 a 5 segundos** para que el escáner pasivo termine de analizar la respuesta.
-3. Mira el panel inferior y haz clic en la pestaña **`Alerts`** (*Alertas*, identificada con un icono de bandera):
-   - Despliega el árbol de alertas haciendo clic en la flecha junto a las banderas naranjas (`Risk: Medium`).
-4. **Debes observar y abrir estas dos alertas pasivas verificadas:**
+No te limites a cambiar solo una parte del texto ni busques un cuadro de dirección separado. Realiza exactamente estos pasos:
 
-| # | Nombre exacto de la alerta en ZAP | ID / Referencia | Nivel de Riesgo | Qué significa y cómo se corrige |
-|---|---|---|---|---|
-| **1** | **`Content Security Policy (CSP) Header Not Set`** | `10038-1` | **Medium** (Naranja) | **Causa:** La respuesta HTML de `http://app:5000/login` no incluye la cabecera `Content-Security-Policy`.<br>**Impacto:** Mayor exposición ante inyección de scripts (XSS) o carga de recursos no autorizados.<br>**Recomendación de ZAP:** Configurar la cabecera HTTP `Content-Security-Policy` restringiendo los orígenes permitidos (`default-src 'self'`). |
-| **2** | **`Missing Anti-clickjacking Header`** | `10020-1` | **Medium** (Naranja) | **Causa:** La respuesta HTML no incluye la cabecera `X-Frame-Options` ni la directiva `frame-ancestors` en CSP.<br>**Impacto:** Un sitio malicioso podría incrustar la página de login dentro de un `<iframe>` invisible para engañar al usuario (*Clickjacking*).<br>**Recomendación de ZAP:** Enviar `X-Frame-Options: DENY` (o `SAMEORIGIN`) y `Content-Security-Policy: frame-ancestors 'none'`. |
+1. Haz clic dentro del **editor de texto superior** de la sección `Request`.
+2. Presiona `Ctrl + A` (o `Cmd + A` en macOS) para seleccionar todo el contenido de ese panel superior.
+3. Bórralo y reemplázalo íntegramente por la siguiente petición HTTP (incluyendo una línea en blanco al final):
 
-5. Haz clic sobre cada una de las dos alertas en el panel izquierdo de `Alerts` y luego sobre la URL **`http://app:5000/login`** que aparece debajo: a la derecha verás los campos **`URL`**, **`Risk`**, **`Confidence`**, **`Description`** y **`Solution`** generados por ZAP al analizar la respuesta real.
+```http
+GET http://app:5000/login HTTP/1.1
+Host: app:5000
+User-Agent: MiniAuth-Lab
+Accept: text/html
+Connection: close
 
-> **Reflexión DAST:** Nota que estas dos alertas indican **configuraciones de defensa ausentes** detectadas de forma pasiva al observar el tráfico HTTP; no significan por sí solas que el servidor haya sido vulnerado o explotado.
+```
+
+4. Comprueba que la **primera línea** diga exactamente `GET http://app:5000/login HTTP/1.1`.
+5. Comprueba que la **segunda línea** contenga `Host: app:5000` (o `host: app:5000`).
+6. **No modifiques** el panel inferior ni los menús desplegables de opciones avanzadas.
+
+Recuerda que usamos `app:5000` porque `app` es el nombre del servicio de MiniAuth dentro de la red de Docker Compose; escribir `localhost:5000` aquí fallaría porque ZAP intentaría conectarse a sí mismo.
+
+### 7.3 Enviar la petición y verificar la respuesta
+
+1. Localiza el botón **`Send`**, situado en la parte superior del editor de la petición.
+2. Haz clic **una sola vez** en **`Send`**.
+3. Revisa la sección **`Response`**, situada junto a `Request` (si tu ventana está en vista de pestañas separadas, haz clic en la pestaña `Response`; en vista dividida aparece directamente a la derecha).
+4. Comprueba en el panel superior de `Response` que la primera línea comienza con **`HTTP/1.1 200 OK`**.
+5. Comprueba en el panel inferior de `Response` que aparece el código HTML de **MiniAuth Lab** (`<!DOCTYPE html>... <title>MiniAuth Lab — Iniciar sesión</title>`).
+
+El estado `HTTP/1.1 200 OK` confirma que el contenedor de ZAP se comunicó correctamente con la aplicación web y recibió la página de inicio de sesión para analizarla de forma pasiva.
+
+![Petición HTTP enviada a MiniAuth desde OWASP ZAP](docs/capturas/04-zap-peticion.png)
+*Figura 4: Ventana Manual Request Editor tras pulsar Send. A la izquierda (Request) se observa el panel superior con la petición `GET http://app:5000/login HTTP/1.1`, `host: app:5000` y el botón Send; a la derecha (Response) se observa el panel superior con `HTTP/1.1 200 OK` (`Server: gunicorn`) y el panel inferior con el documento HTML de MiniAuth Lab.*
+
+> **Importante:** No pulses `Attack` ni ejecutes `Automated Scan` o `Active Scan`. Este laboratorio utiliza únicamente **análisis pasivo** sobre el tráfico generado por nuestra petición.
+
+### 7.4 Cerrar el editor y consultar las alertas pasivas
+
+1. Cierra la ventana **`Manual Request Editor`** haciendo clic en el botón **`X`** de su esquina superior derecha para regresar a la interfaz principal de ZAP.
+2. En el panel superior izquierdo **`Sites`**, despliega la carpeta `Sites` y comprueba que aparece el nodo **`http://app:5000`** y, dentro de él, **`GET:login`**.
+3. En la mitad inferior de la ventana principal, haz clic en la pestaña **`Alerts`** (identificada con el icono de bandera).
+4. Espera unos segundos a que concluya el análisis pasivo de la respuesta observada.
+5. En la lista de alertas del panel inferior izquierdo, identifica estas **dos alertas objetivo** del laboratorio:
+
+| Alerta en OWASP ZAP | Nivel de riesgo | Qué significa en MiniAuth Lab |
+|---|---|---|
+| **`Content Security Policy (CSP) Header Not Set`** | **Medium** (bandera naranja) | La respuesta HTTP carece de la cabecera `Content-Security-Policy`, que restringe desde qué orígenes el navegador puede ejecutar scripts o cargar recursos. |
+| **`Missing Anti-clickjacking Header`** | **Medium** (bandera naranja) | La respuesta HTTP no incluye `X-Frame-Options` ni la directiva `frame-ancestors` de CSP para impedir que la página sea incrustada dentro de un `<frame>` o `<iframe>` no autorizado. |
+
+> **Nota:** Es normal que en la pestaña `Alerts` aparezcan también otras alertas pasivas adicionales (por ejemplo, `Absence of Anti-CSRF Tokens` o `X-Content-Type-Options Header Missing`, mostrando un total de 4 o más alertas). Para este ejercicio solo necesitas inspeccionar las dos alertas de la tabla anterior.
+
+![Árbol Sites y panel Alerts en OWASP ZAP](docs/capturas/05-zap-alertas.png)
+*Figura 5: Interfaz principal de ZAP tras enviar la petición. En el panel superior izquierdo (Sites) aparece `http://app:5000` con `GET:login`; en el panel inferior izquierdo (Alerts) se listan las alertas detectadas pasivamente, incluyendo `Content Security Policy (CSP) Header Not Set` y `Missing Anti-clickjacking Header`.*
+
+6. Haz clic en la flecha junto a **`Content Security Policy (CSP) Header Not Set`** para desplegar la URL afectada (`GET: http://app:5000/login`) y selecciónala (o haz doble clic sobre ella) para consultar su información completa:
+   - **`URL`:** `http://app:5000/login`
+   - **`Risk`:** `Medium`
+   - **`Confidence`:** `High`
+   - **`Description`:** explicación del riesgo de no definir una política CSP.
+   - **`Solution`:** recomendación para configurar la cabecera `Content-Security-Policy` en el servidor web.
+7. Cierra la ventana emergente de la alerta (si la abriste con doble clic, pulsando `Cancel` o `X`) y repite la consulta seleccionando **`Missing Anti-clickjacking Header`**.
+
+![Detalle de la alerta Content Security Policy (CSP) Header Not Set en ZAP](docs/capturas/06-zap-detalle-csp.png)
+*Figura 6: Inspección detallada de la alerta `Content Security Policy (CSP) Header Not Set` para `GET: http://app:5000/login`. Se observan los campos URL, Risk (`Medium`), Confidence (`High`), CWE ID (`693`), Description y Solution.*
+
+**Interpretación:** estas alertas muestran que el análisis dinámico pasivo (DAST) detecta configuraciones de defensa ausentes al examinar las respuestas HTTP del servidor en ejecución, sin que ello implique por sí mismo que la aplicación haya sido comprometida.
 
 ---
 
-## 9. Paso 5: Pruebas de comportamiento (BDD) con Cucumber (7 min)
+## 8. Paso 5: Cucumber — un requisito que falla y luego pasa
 
-Ahora verificarás si **MiniAuth Lab** cumple su especificación funcional utilizando **Cucumber-JVM** y **Gherkin en español**.
+En esta sección comprobarás los requisitos funcionales de MiniAuth Lab mediante escenarios BDD escritos en **Gherkin en español**:
 
-### 9.1 ¿Cómo están estructuradas las pruebas BDD?
+- `cucumber/src/test/resources/features/autenticacion.feature`: contiene los dos escenarios funcionales principales (`Inicio de sesión correcto` y `Rechazo de contraseña incorrecta`).
+- `cucumber/src/test/resources/features/autenticacion_fallo.feature`: contiene un escenario etiquetado con `@fallo-controlado` que exige deliberadamente un mensaje equivocado.
+- `cucumber/src/test/java/io/miniauth/bdd/StepDefinitions.java`: traduce cada paso **`Dado`**, **`Cuando`**, **`Entonces`** e **`Y`** en solicitudes HTTP reales hacia `http://app:5000`.
 
-Las pruebas de comportamiento conectan tres elementos:
-- **Archivo `.feature`** (`cucumber/src/test/resources/features/autenticacion.feature`): describe los escenarios en lenguaje natural usando las palabras clave en español **`Característica`**, **`Escenario`**, **`Dado`** (*Given*), **`Cuando`** (*When*), **`Entonces`** (*Then*) e **`Y`** (*And*).
-- **Step Definitions** (`cucumber/src/test/java/io/miniauth/bdd/StepDefinitions.java`): métodos en Java anotados con `@Dado`, `@Cuando` y `@Entonces` que traducen cada oración de Gherkin en peticiones HTTP reales contra `http://app:5000`.
-- **Cliente HTTP real** (`HttpTestClient.java`): envía el formulario `POST /login`, gestiona las cookies de sesión y comprueba el código de respuesta y el texto HTML recibido.
+### 8.1 Ejecutar los dos escenarios normales (`PASS`)
 
-### 9.2 Ejecutar la suite normal (Resultado esperado: `PASS`)
-
-Regresa a tu terminal (ubicada en la carpeta del proyecto) y ejecuta:
+Regresa a tu terminal (dentro de la carpeta `miniauth-lab`) y ejecuta:
 
 ```bash
 docker compose run --rm cucumber
 ```
 
-*(Nota: si levantaste el entorno en modo de construcción local con `compose.dev.yaml`, usa `docker compose -f compose.yaml -f compose.dev.yaml run --rm cucumber`).*
-
-**Qué debes observar en la consola (tarda de 3 a 6 segundos):**
+**Resultado esperado en la terminal:**
 
 ```text
-Característica: Autenticación de usuarios
-  Para proteger el acceso al perfil
-  Como usuario de MiniAuth
-  Quiero iniciar sesión con mis credenciales
-
-  @normal
-  Escenario: Inicio de sesión correcto
-    Dado que existe el usuario de demostración
-    Cuando inicia sesión con usuario "estudiante" y contraseña "Taller123!"
-    Entonces debe acceder a su perfil
-    Y debe ver el mensaje "Bienvenido, estudiante"
-
-  @normal
-  Escenario: Rechazo de contraseña incorrecta
-    Dado que existe el usuario de demostración
-    Cuando inicia sesión con usuario "estudiante" y contraseña "incorrecta"
-    Entonces el acceso debe ser rechazado
-    Y debe ver el mensaje "Credenciales incorrectas"
-
 2 Scenarios (2 passed)
 8 Steps (8 passed)
-...
-[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
 [INFO] BUILD SUCCESS
 ```
 
-Ambos escenarios pasan (`BUILD SUCCESS`): el sistema permite entrar al usuario con credenciales válidas y rechaza la contraseña incorrecta con el mensaje esperado.
+![Ejecución exitosa de los dos escenarios normales en Cucumber](docs/capturas/07-cucumber-normal.png)
+*Figura 7: Salida en terminal al ejecutar la suite normal de Cucumber. Observa `2 Scenarios (2 passed)`, `8 Steps (8 passed)` y `[INFO] BUILD SUCCESS`.*
 
-### 9.3 Ejecutar el fallo intencional controlado (Resultado esperado: `FAIL`)
+> **Nota sobre el resumen de Maven Surefire:** verás también la línea `[WARNING] Tests run: 3, Failures: 0, Errors: 0, Skipped: 1`. Esto ocurre porque JUnit/Surefire contabiliza los 3 escenarios existentes en total e indica que 1 fue omitido por el filtro (`@fallo-controlado`). Guíate siempre por el resumen de Cucumber (**`2 Scenarios (2 passed)`**) y por **`BUILD SUCCESS`**.
 
-¿Qué ocurre cuando un escenario Gherkin exige un comportamiento que **contradice** lo que hace el sistema? El archivo `cucumber/src/test/resources/features/autenticacion_fallo.feature` contiene un escenario etiquetado con `@fallo-controlado` que inicia sesión con credenciales **válidas** (`estudiante` / `Taller123!`), pero exige ver el mensaje **`"Acceso denegado"`**.
+### 8.2 Ejecutar el escenario de fallo controlado (`FAIL` esperado)
 
-Ejecútalo con este comando:
+Ahora ejecuta únicamente el escenario etiquetado con `@fallo-controlado`:
 
 ```bash
 docker compose run --rm -e CUCUMBER_FILTER_TAGS=@fallo-controlado cucumber
 ```
 
-**Qué debes observar en la consola:**
+**Resultado esperado en la terminal:**
 
 ```text
-@fallo-controlado
-Escenario: Mensaje esperado equivocado
-  Dado que existe el usuario de demostración
-  Cuando inicia sesión con usuario "estudiante" y contraseña "Taller123!"
-  Entonces debe ver el mensaje "Acceso denegado"
-      org.opentest4j.AssertionFailedError: Fallo de aserción BDD: Se esperaba encontrar el mensaje ["Acceso denegado"] en la respuesta HTML (ruta /perfil, HTTP 200), pero no estuvo presente. ==> expected: <true> but was: <false>
-
 1 Scenarios (1 failed)
 3 Steps (1 failed, 2 passed)
-...
-[ERROR] Tests run: 1, Failures: 1, Errors: 0, Skipped: 0
+org.opentest4j.AssertionFailedError: Fallo de aserción BDD: Se esperaba encontrar el mensaje ["Acceso denegado"] en la respuesta HTML (ruta /perfil, HTTP 200), pero no estuvo presente.
 [INFO] BUILD FAILURE
 ```
 
-> **¿Por qué este `BUILD FAILURE` es el resultado correcto en este paso?**  
-> Porque demuestra que la prueba de Cucumber **realmente inspecciona la respuesta de la aplicación** y detecta de inmediato cuando la expectativa escrita en el escenario (`"Acceso denegado"`) no coincide con la respuesta real del sistema (`"Bienvenido, estudiante"` en `/perfil`).
+![Ejecución del escenario con fallo controlado en Cucumber](docs/capturas/08-cucumber-fallo.png)
+*Figura 8: Salida en terminal del escenario `@fallo-controlado`. Observa `1 Scenarios (1 failed)`, el mensaje de `AssertionFailedError` indicando que se esperaba `["Acceso denegado"]` en `/perfil` y el estado final `[INFO] BUILD FAILURE`.*
 
-### 9.4 Volver a ejecutar la suite normal (`PASS`)
+> **¿Por qué este fallo es correcto?** El escenario inicia sesión con credenciales válidas (`estudiante` / `Taller123!`), por lo que la aplicación responde correctamente mostrando `Bienvenido, estudiante` en `/perfil`. Como el escenario exigía ver `"Acceso denegado"`, Cucumber detecta la discrepancia y reporta `BUILD FAILURE` (mientras Surefire contabiliza `Tests run: 3, Failures: 1, Errors: 0, Skipped: 2`).
 
-Para comprobar que los escenarios están aislados entre sí y que el estado del laboratorio sigue intacto sin necesidad de editar ni deshacer cambios en ningún archivo, vuelve a ejecutar:
+### 8.3 Modificar el escenario Gherkin en tu equipo
 
-```bash
-docker compose run --rm cucumber
+Gracias a que `compose.yaml` monta este archivo `.feature` dentro del contenedor, puedes corregir la expectativa desde tu computadora sin necesidad de reconstruir la imagen Docker:
+
+1. Abre el archivo **`cucumber/src/test/resources/features/autenticacion_fallo.feature`** con un editor de texto en tu sistema (por ejemplo, Visual Studio Code, Bloc de notas en Windows, TextEdit en modo texto plano en macOS, o `nano`/tu editor habitual en Linux).
+2. Localiza la última línea (línea 7):
+
+```gherkin
+    Entonces debe ver el mensaje "Acceso denegado"
 ```
 
-**Qué debes observar:** nuevamente `2 Scenarios (2 passed)` y `[INFO] BUILD SUCCESS`.
+3. **Cambia únicamente el texto entre comillas** para que coincida con el mensaje real de bienvenida:
+
+```gherkin
+    Entonces debe ver el mensaje "Bienvenido, estudiante"
+```
+
+4. **Guarda los cambios** en el archivo (`Ctrl + S` en Windows/Linux o `Cmd + S` en macOS).
+
+![Edición del archivo autenticacion_fallo.feature en el editor](docs/capturas/09-gherkin-edicion.png)
+*Figura 9: Archivo `cucumber/src/test/resources/features/autenticacion_fallo.feature` modificado en el editor. Observa en la línea 7 el cambio del texto esperado a `"Bienvenido, estudiante"`.*
+
+### 8.4 Ejecutar nuevamente el escenario y comprobar que ahora pasa (`PASS`)
+
+Vuelve a tu terminal y ejecuta exactamente el mismo comando del paso 8.2:
+
+```bash
+docker compose run --rm -e CUCUMBER_FILTER_TAGS=@fallo-controlado cucumber
+```
+
+**Resultado esperado en la terminal:**
+
+```text
+1 Scenarios (1 passed)
+3 Steps (3 passed)
+[INFO] BUILD SUCCESS
+```
+
+![Ejecución exitosa de Cucumber tras corregir el escenario Gherkin](docs/capturas/10-cucumber-corregido.png)
+*Figura 10: Resultado en terminal tras guardar el cambio en `autenticacion_fallo.feature` y volver a ejecutar el comando. Ahora muestra `Entonces debe ver el mensaje "Bienvenido, estudiante"`, `1 Scenarios (1 passed)`, `3 Steps (3 passed)` y `[INFO] BUILD SUCCESS`.*
+
+### 8.5 Restaurar el archivo original con Git
+
+Para dejar el repositorio limpio y en su estado inicial, restaura el archivo ejecutando:
+
+```bash
+git restore cucumber/src/test/resources/features/autenticacion_fallo.feature
+```
+
+**Resultado esperado:** el comando termina sin errores y devuelve la línea 7 de `autenticacion_fallo.feature` a `"Acceso denegado"`.
 
 ---
 
-## 10. Paso 6: Cierre y comparación DAST vs BDD (2 min)
+## 9. Paso 6: Conclusión y apagado
 
-Observa cómo ambas herramientas evaluaron **la misma aplicación (`MiniAuth Lab`)**, pero respondieron preguntas distintas y complementarias:
-
-| Herramienta | Tipo de Verificación | ¿Qué pregunta responde? | Resultado observado en MiniAuth Lab |
+| Herramienta | Enfoque de V&V | Pregunta que responde | Qué comprobaste en MiniAuth Lab |
 |---|---|---|---|
-| **OWASP ZAP** | **DAST** (*Seguridad dinámica*) | *¿Qué debilidades o configuraciones inseguras expone la aplicación web en sus respuestas HTTP en tiempo de ejecución?* | **2 alertas pasivas (`Medium`):** ausencia de cabecera `Content-Security-Policy` (`10038-1`) y ausencia de cabecera anti-clickjacking `X-Frame-Options` (`10020-1`) en `/login`. |
-| **Cucumber-JVM** | **BDD** (*Comportamiento funcional*) | *¿El sistema cumple los criterios de aceptación funcionales acordados en los escenarios Gherkin?* | **2 escenarios `PASS`:** login válido accede a `/perfil` (`Bienvenido, estudiante`) y contraseña errónea es rechazada (`Credenciales incorrectas`). |
+| **OWASP ZAP** | **DAST** (Seguridad dinámica) | *¿Qué configuraciones de seguridad están ausentes en las respuestas HTTP de la aplicación en ejecución?* | Se detectaron de forma pasiva las alertas `Content Security Policy (CSP) Header Not Set` y `Missing Anti-clickjacking Header` en `http://app:5000/login`. |
+| **Cucumber** | **BDD** (Comportamiento funcional) | *¿La aplicación cumple el comportamiento funcional descrito en los escenarios Gherkin?* | Los 2 escenarios normales pasaron; la expectativa errónea falló por aserción y pasó al corregir el `.feature`. |
 
-**Conclusión clave:** Una aplicación puede pasar el **100 % de sus pruebas funcionales en Cucumber** y aun así presentar **deficiencias de seguridad detectables por OWASP ZAP** (y viceversa). Por ello, en Verificación y Validación de Software ambos tipos de pruebas son complementarios.
+**Conclusión:** una aplicación puede cumplir correctamente sus requisitos funcionales para el usuario final y, al mismo tiempo, carecer de cabeceras de seguridad importantes. Combinar BDD y DAST permite verificar tanto la funcionalidad esperada como la postura de seguridad en ejecución.
 
----
-
-## 11. Apagado del laboratorio
-
-Cuando hayas terminado la práctica, detén y elimina los contenedores ejecutando en tu terminal:
+Para detener y eliminar los contenedores al finalizar la práctica, ejecuta en tu terminal:
 
 ```bash
 docker compose down
 ```
 
-**Qué debes observar:** Docker detiene y elimina `miniauth-zap`, `miniauth-app` y la red `miniauth_net`.
-
-> **Nota opcional (solo si deseas liberar espacio en disco tras finalizar el curso):**  
-> No ejecutes el siguiente comando si vas a volver a usar el laboratorio en clase, ya que borrará las imágenes descargadas:
-> ```bash
-> docker compose down --rmi all
-> ```
+**Resultado esperado:** Docker detiene y elimina los contenedores `miniauth-zap` y `miniauth-app` junto con la red `miniauth_net`, conservando las imágenes descargadas en tu equipo.
 
 ---
 
-## 12. Solución de problemas frecuentes (Troubleshooting)
+## 10. Solución de problemas
 
-Si encuentras algún inconveniente durante la práctica, ubica el síntoma en la siguiente tabla y ejecuta el comando indicado:
+| Síntoma o mensaje | Causa probable | Solución |
+|---|---|---|
+| `Cannot connect to the Docker daemon` | Docker Desktop o el servicio `docker` está apagado | Abre **Docker Desktop** (o ejecuta `sudo systemctl start docker` en Linux), espera a que inicie y verifica con `docker info`. |
+| `pull access denied` / `manifest unknown` | Las imágenes aún no están publicadas como públicas en GHCR o no se descargaron | Si estás trabajando en modo de desarrollo local sin GHCR, usa los comandos de construcción local indicados en la nota al final de esta sección. |
+| `port is already allocated` | El puerto `5000` o `8080` está ocupado por otro proceso o contenedor | Ejecuta `docker compose ps` y `docker compose down`, o cierra la aplicación que use ese puerto (en macOS puede ser *Receptor AirPlay* en el puerto 5000). |
+| `miniauth-app` no aparece como `healthy` | El contenedor aún está arrancando o tuvo un error | Espera 10 segundos y ejecuta `docker compose ps`. Si persiste, revisa `docker compose logs --tail=60 app`. |
+| `http://localhost:8080/zap` tarda en mostrar la interfaz | Webswing está inicializando el escritorio de ZAP | Espera entre 15 y 40 segundos y recarga la pestaña del navegador; puedes verificar el avance con `docker compose logs --tail=40 zap`. |
+| `0 Alerts` en la pestaña `Alerts` de ZAP | Visitaste `localhost:5000` desde el navegador del host en lugar de enviar la petición desde ZAP | Sigue las secciones 7.1 a 7.3: abre **Tools → Manual Request Editor...**, envía `GET http://app:5000/login HTTP/1.1` con `Host: app:5000` y pulsa **Send**. |
+| `Connection refused` al pulsar `Send` en ZAP | Escribiste `localhost:5000` dentro del editor de ZAP | Cambia la primera línea a `GET http://app:5000/login HTTP/1.1` y la cabecera a `Host: app:5000`. |
+| Cucumber falla indicando que no puede conectar a `/health` | El contenedor `app` no está encendido o aún no está `healthy` | Ejecuta `docker compose up -d app`, verifica con `docker compose ps` que indique `(healthy)` y repite el comando de Cucumber. |
+| `UndefinedStepException` al ejecutar Cucumber | Se modificó el texto fuera de las comillas en `autenticacion_fallo.feature` | Ejecuta `git restore cucumber/src/test/resources/features/autenticacion_fallo.feature` y cambia únicamente el texto entre comillas (`"Bienvenido, estudiante"`). |
+| Tras editar `autenticacion_fallo.feature` sigue fallando por `Acceso denegado` | No se guardó el archivo antes de ejecutar el comando | Guarda el archivo en tu editor (`Ctrl + S` / `Cmd + S`) y vuelve a ejecutar el comando del apartado 8.4. |
+| En Linux aparece `permission denied ... docker.sock` | Tu usuario no tiene permisos para conectarse al socket de Docker | Consulta al instructor antes de modificar grupos del sistema (`docker` requiere permisos administrativos). |
 
-### 12.1 Docker daemon apagado
-- **Síntoma aproximado:** `Cannot connect to the Docker daemon...` o `open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.`
-- **Causa:** Docker Desktop (Windows/macOS) o el servicio `docker` (Linux) no está iniciado.
-- **Comandos exactos:** Abre la aplicación **Docker Desktop**, espera ~30 segundos a que indique *Engine running* (en Linux ejecuta `sudo systemctl start docker`) y verifica con:
-  ```bash
-  docker info
-  ```
-- **Resultado esperado:** Se muestra la sección `Server: Docker Engine` sin errores.
+### Nota para los autores y mantenedores (Ejecución en desarrollo local sin GHCR)
 
-### 12.2 Puerto ocupado (`port is already allocated` / `address already in use`)
-- **Síntoma aproximado:** `Error response from daemon: Ports are not available: exposing port TCP 127.0.0.1:5000 ... bind: address already in use`
-- **Causa:** Otro contenedor o aplicación local (ej. *AirPlay Receiver* en macOS) está ocupando el puerto `5000` o `8080`.
-- **Comandos exactos:**
-  ```bash
-  docker compose down
-  docker ps
-  ```
-  *(En macOS, si el puerto `5000` sigue ocupado sin contenedores activos, desactiva **Receptor AirPlay** en Configuración del Sistema → General → AirDrop y Handoff).* Luego vuelve a iniciar:
-  ```bash
-  docker compose up -d
-  ```
-- **Resultado esperado:** `miniauth-app` y `miniauth-zap` arrancan en estado `Up`.
+Mientras las imágenes preconstruidas no hayan sido publicadas en GitHub Container Registry (GHCR), o cuando se desee compilar los contenedores directamente desde los `Dockerfile` locales, utiliza el archivo adicional `compose.dev.yaml`:
 
-### 12.3 Imagen no descargada o red lenta en el aula
-- **Síntoma aproximado:** `manifest unknown`, `pull access denied` o descarga detenida.
-- **Causa:** Las imágenes preconstruidas no se descargaron antes de clase o hay bloqueo hacia `ghcr.io`.
-- **Comandos exactos (construcción local desde los Dockerfiles del proyecto):**
+- **Construir y levantar el entorno localmente:**
   ```bash
   docker compose -f compose.yaml -f compose.dev.yaml up -d --build
   ```
-- **Resultado esperado:** Docker construye localmente `miniauth-app:local` y `miniauth-cucumber:local` y levanta el entorno.
-
-### 12.4 Acceso denegado al daemon de Docker en Linux (`permission denied`)
-- **Síntoma aproximado:** `permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock`
-- **Causa:** Tu usuario de Linux no pertenece al grupo `docker`.
-- **Comandos exactos:**
+- **Ejecutar los escenarios normales de Cucumber:**
   ```bash
-  sudo usermod -aG docker $USER
-  newgrp docker
-  docker compose ps
+  docker compose -f compose.yaml -f compose.dev.yaml run --rm cucumber
   ```
-- **Resultado esperado:** `docker compose ps` funciona sin requerir `sudo`.
-
-### 12.5 OWASP ZAP aún inicializando en `http://localhost:8080/zap`
-- **Síntoma aproximado:** La página muestra *"Starting application..."*, pantalla gris o no responde inmediatamente tras `docker compose up -d`.
-- **Causa:** ZAP inicia una interfaz gráfica de escritorio sobre Java y Webswing que tarda de 15 a 40 segundos en estar lista.
-- **Comandos exactos:**
+- **Ejecutar el escenario `@fallo-controlado`:**
   ```bash
-  docker compose logs --tail=20 zap
+  docker compose -f compose.yaml -f compose.dev.yaml run --rm -e CUCUMBER_FILTER_TAGS=@fallo-controlado cucumber
   ```
-  Espera 15 segundos y recarga en tu navegador `http://localhost:8080/zap`.
-- **Resultado esperado:** Aparece la ventana de bienvenida de OWASP ZAP.
-
-### 12.6 OWASP ZAP muestra `0` alertas en el panel `Alerts`
-- **Síntoma aproximado:** Visitaste `http://localhost:5000/login` en el navegador de tu computadora, pero en ZAP la pestaña `Alerts` sigue vacía (`0`).
-- **Causa:** El navegador de tu computadora se conecta directamente al puerto `5000` sin pasar por ZAP.
-- **Pasos exactos:** Dentro de la ventana de OWASP ZAP (`http://localhost:8080/zap`), abre **`Tools` → `Manual Request Editor...`**, escribe `http://app:5000/login`, haz clic en **`Send`** y espera 3 segundos.
-- **Resultado esperado:** Aparece `http://app:5000` en `Sites` y las 2 alertas de riesgo medio (`10038-1` y `10020-1`) en `Alerts`.
-
-### 12.7 Error al escribir `http://localhost:5000` dentro de OWASP ZAP
-- **Síntoma aproximado:** ZAP devuelve un error `Connection refused` al intentar abrir `http://localhost:5000/login`.
-- **Causa:** Dentro del contenedor de ZAP, `localhost` es el propio contenedor de ZAP, no el contenedor de la aplicación Flask.
-- **Solución exacta:** Escribe siempre el nombre del servicio en la red de Docker Compose:
-  ```text
-  http://app:5000/login
-  ```
-- **Resultado esperado:** La pestaña `Response` de ZAP muestra `HTTP/1.1 200 OK` con el HTML de `MiniAuth Lab`.
-
-### 12.8 El contenedor `cucumber` no logra conectarse a `app`
-- **Síntoma aproximado:** `No fue posible conectar con MiniAuth en http://app:5000/health.`
-- **Causa:** El contenedor `app` no está encendido o no está `healthy`.
-- **Comandos exactos:**
+- **Apagar el entorno:**
   ```bash
-  docker compose up -d app
-  docker compose ps
-  docker compose run --rm cucumber
+  docker compose -f compose.yaml -f compose.dev.yaml down
   ```
-- **Resultado esperado:** `miniauth-app` muestra `(healthy)` y `cucumber` ejecuta los 2 escenarios con `BUILD SUCCESS`.
-
-### 12.9 Error `UndefinedStepException` (`undefined step`) en Cucumber
-- **Síntoma aproximado:** `io.cucumber.junit.platform.engine.UndefinedStepException: The step '...' is undefined.`
-- **Causa:** Se editó por accidente alguna frase en `autenticacion.feature`.
-- **Comandos exactos:**
-  ```bash
-  git checkout -- cucumber/src/test/resources/features/
-  docker compose run --rm cucumber
-  ```
-- **Resultado esperado:** Los pasos coinciden nuevamente con `StepDefinitions.java` y la suite pasa.
-
-### 12.10 Error de Maven en modo offline (`Cannot access central in offline mode`)
-- **Síntoma aproximado:** `Cannot access central (https://repo.maven.apache.org/maven2) in offline mode`
-- **Causa:** La imagen local de `cucumber` fue modificada sin completar el precargado de dependencias.
-- **Comandos exactos:**
-  ```bash
-  docker compose -f compose.yaml -f compose.dev.yaml build --no-cache cucumber
-  ```
-- **Resultado esperado:** La imagen descarga y almacena todos los plugins de Maven durante el build y permite ejecutar `cucumber` sin internet.
-
-### 12.11 El comando de fallo controlado falla por causa distinta a la aserción
-- **Síntoma aproximado:** Al ejecutar el comando con `-e CUCUMBER_FILTER_TAGS` aparece un error de sintaxis de consola o no se selecciona `@fallo-controlado`.
-- **Causa:** Comillas tipográficas o incompatibles copiadas en la terminal.
-- **Comando exacto sin comillas conflictivas:**
-  ```bash
-  docker compose run --rm -e CUCUMBER_FILTER_TAGS=@fallo-controlado cucumber
-  ```
-- **Resultado esperado:** Se ejecuta `1 Scenarios (1 failed)` y se muestra `Fallo de aserción BDD: Se esperaba encontrar el mensaje ["Acceso denegado"]`.
